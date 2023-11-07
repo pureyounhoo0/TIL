@@ -14,23 +14,23 @@ let tempMoveingItem;
 
 const BLOCKS = {
     tree: [
-        [[2,1],[0,1],[1,0],[1,1]],
-        [],
-        [],
-        [],
+        [[2, 1], [0, 1], [1, 0], [1, 1]],
+        [[2, 1], [0, 1], [1, 0], [1, 1]],
+        [[2, 1], [0, 1], [1, 0], [1, 1]],
+        [[2, 1], [0, 1], [1, 0], [1, 1]],
     ]
 }
 const movingItem = {
     type: "tree",
     direction: 0,
-    top:0,
-    left:0,
+    top: 0,
+    left: 0,
 };
 init()
 
 // functions
 function init() {
-    tempMoveingItem ={ ...movingItem} ;
+    tempMoveingItem = { ...movingItem };
     for (let i = 0; i < 20; i++) {
         prependNewLine()
     }
@@ -50,33 +50,61 @@ function prependNewLine() {
     li.prepend(ul)
     playground.prepend(li)
 }
-function renderBlocks(){
-    const{type,direction,top,left} = tempMoveingItem;
+function renderBlocks() {
+    const { type, direction, top, left } = tempMoveingItem;
     const movingBlocks = document.querySelectorAll(".moving");
     movingBlocks.forEach(moving => {
-        console,log(moving)
+        moving.classList.remove(type, "moving");
     })
     BLOCKS[type][direction].forEach(block => {
         const x = block[0] + left;
         const y = block[1] + top;
-        console.log([playground])
-        const target = playground.childNodes[y].childNodes[0].childNodes[x];
-        target.classList.add(type, "moving")
-    });
+        const target = playground.childNodes[y] ? playground.childNodes[y].childNodes[0].childNodes[x] : null;
+        const isAvailable = checkEmpty(target);
+        if (isAvailable) {
+            target.classList.add(type, "moving")
+        } else {
+            tempMoveingItem = { ...movingItem }
+            setTimeout(() =>{
+                renderBlocks();
+                if(moveType == "top"){// 블럭이 맨 아래로 더이상 내려가지 않게해주는 부분
+                    seizeBlock();
+                }
+            renderBlocks();   
+            },0)
+            //renderBlocks();  
+            } 
+        })
+        movingItem.left = left;
+        movingItem.top = top;
+        movingItem.direction - direction;
 }
-function moveBlock(moveType,amount){
+function seizeBlock(){
+      console.log('seize block')
+}
+function checkEmpty(target) {
+    if (!target) {
+        return false;
+    }
+    return true;
+}
+function moveBlock(moveType, amount) {
     tempMoveingItem[moveType] += amount;
     renderBlocks()
 }
 
 //event handling
-document.addEventListener("keydown",e => {
-    switch(e.keyCode){
+document.addEventListener("keydown", e => {
+    switch (e.keyCode) {
         case 39:
-            moveBlock("left",1);
+            moveBlock("left", 1);
             break;
         case 37:
-                moveBlock("left",-1)
+            moveBlock("left", -1);
+            break;
+        case 40:
+            moveBlock("top", 1);
+            break;
         default:
             break;
     }
